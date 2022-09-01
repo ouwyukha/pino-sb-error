@@ -1,8 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import pino from "pino";
 import { createApp } from "./app";
 import createLogger from "./logger";
 
-const logger = createLogger();
+const logger= createLogger();
 
 async function init() {
   const app = await createApp(logger);
@@ -10,12 +11,13 @@ async function init() {
   try {
     app.get("/", (_: FastifyRequest, rep: FastifyReply) => {
       app.log.info("hello world");
-      rep.send('hello world');
+      rep.send("hello world");
     });
     await app.listen({
       port: 3001,
       host: "0.0.0.0",
     });
+    pino.final();
   } catch (err) {
     console.log(err);
     process.exit(1);
