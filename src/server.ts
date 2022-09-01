@@ -3,7 +3,7 @@ import pino from "pino";
 import { createApp } from "./app";
 import createLogger from "./logger";
 
-const logger= createLogger();
+const logger = createLogger();
 
 async function init() {
   const app = await createApp(logger);
@@ -17,7 +17,7 @@ async function init() {
       port: 3001,
       host: "0.0.0.0",
     });
-    pino.final();
+    pino.final(logger);
   } catch (err) {
     console.log(err);
     process.exit(1);
