@@ -1,9 +1,9 @@
 import fastify, { FastifyInstance } from "fastify";
-import type { Logger } from "pino";
+import createLogger from "./logger";
 
-export const createApp = async (logger: Logger): Promise<FastifyInstance> => {
+export const createApp = async (): Promise<FastifyInstance> => {
   const app = fastify({
-    logger,
+    logger: createLogger(),
   });
   return app;
 };

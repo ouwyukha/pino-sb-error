@@ -1,27 +1,43 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import pino from "pino";
+import { cpus } from "os";
+import cluster from "cluster";
 import { createApp } from "./app";
-import createLogger from "./logger";
-
-const logger = createLogger();
 
 async function init() {
-  const app = await createApp(logger);
+  const app = await createApp();
 
   try {
     app.get("/", (_: FastifyRequest, rep: FastifyReply) => {
-      app.log.info("hello world");
+      for (let i = 0; i < 100000; ++i) {
+        app.log.info(
+          {
+            i,
+            flagA: "flagAIsAtomic",
+            flagB: "flagBIsAtomic",
+            flagC: "flagCIsAtomic",
+            flagD: "flagDIsAtomic",
+            flagE: "flagEIsAtomic",
+          },
+          "hello world"
+        );
+      }
       rep.send("hello world");
     });
     await app.listen({
       port: 3001,
       host: "0.0.0.0",
     });
-    pino.final(logger);
   } catch (err) {
     console.log(err);
     process.exit(1);
   }
 }
 
-init();
+if (cluster.isPrimary) {
+  const numCPUs = cpus().length;
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+} else {
+  init();
+}
